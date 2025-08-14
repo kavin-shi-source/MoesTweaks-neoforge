@@ -1,7 +1,6 @@
 package com.moepus.moestweaks.events;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.Mob;
@@ -9,15 +8,8 @@ import net.minecraft.world.entity.monster.*;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraftforge.event.entity.living.MobSpawnEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
 
-import java.util.Random;
-
-@Mod.EventBusSubscriber
 public class MonsterWearsArmor {
-
-    @SubscribeEvent
     public static void onMobFinalizeSpawn(MobSpawnEvent.FinalizeSpawn event) {
         Mob mob = event.getEntity();
         if(mob instanceof Zombie || mob instanceof Skeleton || mob instanceof AbstractIllager) {
