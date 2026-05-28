@@ -9,15 +9,25 @@ import net.minecraft.world.level.levelgen.PatrolSpawner;
 import net.minecraft.world.level.levelgen.PhantomSpawner;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.event.level.ModifyCustomSpawnersEvent;
+import java.util.HashMap;
+import java.util.Map;
 
 public class NoCustomSpawner {
     @SubscribeEvent
     public static void onModifyCustomSpawners(ModifyCustomSpawnersEvent event) {
         Config config = ConfigParser.getConfig();
-        if (config.noCatSpawner) event.getCustomSpawners().removeIf(spawner -> spawner instanceof CatSpawner);
-        if (config.noPhantomSpawner) event.getCustomSpawners().removeIf(spawner -> spawner instanceof PhantomSpawner);
-        if (config.noPatrolSpawner) event.getCustomSpawners().removeIf(spawner -> spawner instanceof PatrolSpawner);
-        if (config.noVillageSiege) event.getCustomSpawners().removeIf(spawner -> spawner instanceof VillageSiege);
-        if (config.noWanderingTraderSpawner) event.getCustomSpawners().removeIf(spawner -> spawner instanceof WanderingTraderSpawner);
+
+        Map<Class<?>, Boolean> spawnerMappings = new HashMap<>();
+        spawnerMappings.put(CatSpawner.class, config.noCatSpawner);
+        spawnerMappings.put(PhantomSpawner.class, config.noPhantomSpawner);
+        spawnerMappings.put(PatrolSpawner.class, config.noPatrolSpawner);
+        spawnerMappings.put(VillageSiege.class, config.noVillageSiege);
+        spawnerMappings.put(WanderingTraderSpawner.class, config.noWanderingTraderSpawner);
+
+        for (Map.Entry<Class<?>, Boolean> entry : spawnerMappings.entrySet()) {
+            if (entry.getValue()) {
+                event.getCustomSpawners().removeIf(spawner -> entry.getKey().isInstance(spawner));
+            }
+        }
     }
 }
