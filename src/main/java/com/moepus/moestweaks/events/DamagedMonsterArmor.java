@@ -1,18 +1,36 @@
 package com.moepus.moestweaks.events;
 
-import net.minecraft.util.Mth;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.event.entity.living.MobSpawnEvent;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.neoforge.event.entity.living.FinalizeSpawnEvent;
 
 public class DamagedMonsterArmor {
-    public static void onMobFinalizeSpawn(MobSpawnEvent.FinalizeSpawn event) {
-        Mob mob = event.getEntity();
-        if (mob != null && mob.getArmorSlots() != null) {
-            for (ItemStack armor : mob.getArmorSlots()) {
-                if (armor.isDamageableItem() && armor.getDamageValue() == 0) {
-                    int newDurability = armor.getMaxDamage() - Mth.floor(mob.getMaxHealth() / 2 * Mth.randomBetween(mob.getRandom(), 0.75f, 1.3f));
-                    armor.setDamageValue(newDurability);
+    @SubscribeEvent
+    public static void onEntitySpawn(FinalizeSpawnEvent event) {
+        if (!(event.getEntity() instanceof Mob mob))
+            return;
+
+        for (EquipmentSlot slot : EquipmentSlot.values()) {
+            if (slot.getType() == EquipmentSlot.Type.HUMANOID_ARMOR) {
+                ItemStack itemStack = mob.getItemBySlot(slot);
+
+                if (itemStack.isEmpty() || !itemStack.isDamageableItem())
+                    continue;
+
+                int maxDamage = itemStack.getMaxDamage();
+                int minDamage = 0;
+                int maxMinus = (int) (maxDamage * 0.30f);
+                double random = Math.random();
+                double probability = 0.50;
+
+                if (random < probability) {
+                    int damage = minDamage + (int) (Math.random() * (maxMinus - minDamage + 1));
+
+                    if (damage != 0) {
+                        itemStack.setDamageValue(damage);
+                    }
                 }
             }
         }

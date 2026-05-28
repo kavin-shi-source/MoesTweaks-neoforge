@@ -3,13 +3,12 @@
   "minVersion": "0.8",
   "package": "com.moepus.moestweaks.mixins",
   "refmap": "moestweaks.refmap.json",
-  "compatibilityLevel": "JAVA_17",
+  "compatibilityLevel": "JAVA_21",
   "plugin": "com.moepus.moestweaks.MixinPlugin",
   "client": [
     "LocalPlayerMixinDoubleJmp",
-    "noRecipeBook.AbstractFurnaceScreenMixin",
-    "noRecipeBook.ClientPacketListenerMixin",
-    "noRecipeBook.InventoryScreenMixin"
+    "noRecipeBook.AbstractRecipeBookMixin",
+    "noRecipeBook.ClientPacketListenerMixin"
   ],
   "mixins": [
     "AbstractPiglinMixin",
@@ -22,9 +21,6 @@
     "VillagerMakeLoveMixin",
     "mobThrowsMustDrop.MobMixin",
     "monsterArmorHurt.MonsterMixin",
-    "noRecipeBook.AbstractFurnaceScreenMixin",
-    "noRecipeBook.CraftingScreenMixin",
-    "noRecipeBook.InventoryScreenMixin",
     "noRecipeBook.ServerRecipeBookMixin"
   ],
   "injectors": {

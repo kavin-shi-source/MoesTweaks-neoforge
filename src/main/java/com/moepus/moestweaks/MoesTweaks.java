@@ -2,89 +2,36 @@ package com.moepus.moestweaks;
 
 import com.moepus.moestweaks.effects.EffectRegistry;
 import com.moepus.moestweaks.events.*;
-import com.mojang.logging.LogUtils;
-import net.minecraft.client.Minecraft;
-import net.minecraft.core.registries.Registries;
-import net.minecraft.world.food.FoodProperties;
-import net.minecraft.world.item.BlockItem;
-import net.minecraft.world.item.CreativeModeTab;
-import net.minecraft.world.item.CreativeModeTabs;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.state.BlockBehaviour;
-import net.minecraft.world.level.material.MapColor;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
-import net.minecraftforge.event.server.ServerStartingEvent;
-import net.minecraftforge.eventbus.api.EventPriority;
-import net.minecraftforge.eventbus.api.IEventBus;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.ModLoadingContext;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.config.ModConfig;
-import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
-import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
-import net.minecraftforge.fml.event.lifecycle.FMLLoadCompleteEvent;
-import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import net.minecraftforge.fml.loading.FMLEnvironment;
-import net.minecraftforge.registries.DeferredRegister;
-import net.minecraftforge.registries.ForgeRegistries;
-import net.minecraftforge.registries.RegistryObject;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.fml.common.Mod;
+import net.neoforged.fml.loading.FMLEnvironment;
+import net.neoforged.neoforge.common.NeoForge;
 import org.slf4j.Logger;
-
-// The value here should match an entry in the META-INF/mods.toml file
+import org.slf4j.LoggerFactory;
 @Mod(MoesTweaks.MODID)
 public class MoesTweaks {
     public static final String MODID = "moestweaks";
-    public static final Logger LOGGER = LogUtils.getLogger();
-    Config config = ConfigParser.getConfig();
+    public static final Logger LOGGER = LoggerFactory.getLogger(MoesTweaks.class);
+    private final Config config;
 
-    public MoesTweaks() {
-        IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
-        modEventBus.addListener(this::loadComplete);
+    public MoesTweaks(IEventBus modEventBus) {
+        ConfigParser.loadConfig();
+        config = ConfigParser.getConfig();
 
-        MinecraftForge.EVENT_BUS.register(this);
+        EffectRegistry.MOB_EFFECTS.register(modEventBus);
 
-        IEventBus forgeEventBus = MinecraftForge.EVENT_BUS;
+        if (config.stopFire) NeoForge.EVENT_BUS.addListener(NoFireSpread::onLevelLoaded);
+        NeoForge.EVENT_BUS.addListener(NoCustomSpawner::onModifyCustomSpawners);
+        if (config.villageSpawnPoint) NeoForge.EVENT_BUS.addListener(VillageSpawnPoint::onCreateSpawnPosition);
+        if (config.stopNetherPortal) NeoForge.EVENT_BUS.addListener(NoNetherPortal::onPortalSpawn);
+        if (config.bakaSilverFish) NeoForge.EVENT_BUS.addListener(SilverFishNoExp::onExpDrop);
+        if (config.monsterWearsArmor) NeoForge.EVENT_BUS.addListener(MonsterWearsArmor::onEntitySpawn);
+        if (config.damagedMonsterArmor) NeoForge.EVENT_BUS.addListener(DamagedMonsterArmor::onEntitySpawn);
+        if (config.adrenalineEffect) NeoForge.EVENT_BUS.addListener(AdrenalineEffectGiver::onLivingDamage);
 
-        forgeEventBus.addListener(NoCustomSpawner::onLevelLoaded);
-        if (config.stopFire)
-            forgeEventBus.addListener(NoFireSpread::onLevelLoaded);
-
-        if (config.villageSpawnPoint)
-            forgeEventBus.addListener(VillageSpawnPoint::onCreateSpawnPosition);
-
-        if (config.stopNetherPortal)
-            forgeEventBus.addListener(NoNetherPortal::onPortalSpawn);
-
-        if (config.bakaSilverFish)
-            forgeEventBus.addListener(SilverFishNoExp::onExpDrop);
-
-        if(config.adrenalineEffect)
-        {
-            EffectRegistry.MOB_EFFECTS.register(modEventBus);
-            forgeEventBus.addListener(EventPriority.LOWEST, AdrenalineEffectGiver::onLivingHurt);
-        }
-
-        if(config.damagedMonsterArmor)
-            forgeEventBus.addListener(EventPriority.LOWEST, DamagedMonsterArmor::onMobFinalizeSpawn);
-
-        if(config.monsterWearsArmor)
-            forgeEventBus.addListener(MonsterWearsArmor::onMobFinalizeSpawn);
-
-        modEventBus.addListener(this::commonSetup);
-    }
-
-    private void commonSetup(final FMLCommonSetupEvent event) {
-
-    }
-    private void loadComplete(final FMLLoadCompleteEvent event) {
-        IEventBus forgeEventBus = MinecraftForge.EVENT_BUS;
-
-        if (FMLEnvironment.dist.equals(Dist.CLIENT)) {
-            if (config.hideShield) forgeEventBus.addListener(HideShield::onHandRender);
+        if (FMLEnvironment.dist == Dist.CLIENT && config.hideShield) {
+            NeoForge.EVENT_BUS.addListener(HideShield::onHandRender);
         }
     }
 }

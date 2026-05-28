@@ -19,6 +19,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
+import net.minecraft.tags.EnchantmentTags;
 
 import javax.annotation.Nullable;
 
@@ -47,12 +48,12 @@ public abstract class PlayerMixinBetterKeep extends LivingEntity {
 
         int containerSize = inventory.getContainerSize();
 
-        final TagKey<Item> toolTag = ItemTags.create(new ResourceLocation("forge", "tools"));
+        final TagKey<Item> toolTag = ItemTags.create(ResourceLocation.fromNamespaceAndPath("neoforge", "tools"));
         for (int i = 0; i < containerSize; ++i) {
             ItemStack itemstack = inventory.getItem(i);
             if (itemstack.isEmpty()) continue;
 
-            if (EnchantmentHelper.hasVanishingCurse(itemstack)) inventory.removeItemNoUpdate(i);
+            if (EnchantmentHelper.hasTag(itemstack, EnchantmentTags.CURSE)) inventory.removeItemNoUpdate(i);
 
             if (i >= 36 && i <= 39) continue; // Helmet - Boots
 

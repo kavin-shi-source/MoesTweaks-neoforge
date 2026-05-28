@@ -1,7 +1,6 @@
 package com.moepus.moestweaks.mixins;
 
 import com.moepus.moestweaks.ConfigParser;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.effect.MobEffects;
@@ -63,7 +62,7 @@ public abstract class AbstractPiglinMixin extends Mob {
     }
 
     @Override
-    public SpawnGroupData finalizeSpawn(ServerLevelAccessor pLevel, DifficultyInstance pDifficulty, MobSpawnType pReason, @Nullable SpawnGroupData pSpawnData, @Nullable CompoundTag pDataTag) {
+    public SpawnGroupData finalizeSpawn(ServerLevelAccessor pLevel, DifficultyInstance pDifficulty, MobSpawnType pReason, @Nullable SpawnGroupData pSpawnData) {
         if (piglinWearNetherite && isAdult()) {
             RandomSource random = pLevel.getRandom();
             int rand = random.nextInt(8);
@@ -116,6 +115,6 @@ public abstract class AbstractPiglinMixin extends Mob {
                 }
             }
         }
-        return super.finalizeSpawn(pLevel, pDifficulty, pReason, pSpawnData, pDataTag);
+        return super.finalizeSpawn(pLevel, pDifficulty, pReason, pSpawnData);
     }
 }

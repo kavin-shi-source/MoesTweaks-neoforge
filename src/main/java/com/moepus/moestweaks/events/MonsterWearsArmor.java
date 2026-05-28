@@ -4,45 +4,48 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.Mob;
-import net.minecraft.world.entity.monster.*;
+import net.minecraft.world.entity.monster.AbstractIllager;
+import net.minecraft.world.entity.monster.Skeleton;
+import net.minecraft.world.entity.monster.Zombie;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraftforge.event.entity.living.MobSpawnEvent;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.neoforge.event.entity.living.FinalizeSpawnEvent;
 
 public class MonsterWearsArmor {
-    public static void onMobFinalizeSpawn(MobSpawnEvent.FinalizeSpawn event) {
+    @SubscribeEvent
+    public static void onEntitySpawn(FinalizeSpawnEvent event) {
         Mob mob = event.getEntity();
-        if(mob instanceof Zombie || mob instanceof Skeleton || mob instanceof AbstractIllager) {
-            BlockPos levelSpawnPos = mob.level().getSharedSpawnPos();
-            double distanceToSpawn = Math.sqrt(levelSpawnPos.distSqr(mob.blockPosition()));
-            if(distanceToSpawn < 1000.0) return;
-            RandomSource random = event.getLevel().getRandom();
+        if (!(mob instanceof Zombie || mob instanceof Skeleton || mob instanceof AbstractIllager))
+            return;
 
-            // Calculate probabilities based on distance
-            double armorProbability = Math.min(1.0, distanceToSpawn / 100 / 100);
+        BlockPos levelSpawnPos = mob.level().getSharedSpawnPos();
+        double distanceToSpawn = Math.sqrt(levelSpawnPos.distSqr(mob.blockPosition()));
+        if (distanceToSpawn < 1000.0) return;
+        RandomSource random = event.getLevel().getRandom();
 
-            // Equip armor based on probabilities
-            if (random.nextDouble() < armorProbability) {
-                double quality = Math.min(1.0, distanceToSpawn / 12000.0);
-                equipArmor(mob, quality, random);
-            }
+        double armorProbability = Math.min(1.0, distanceToSpawn / 100 / 100);
+
+        if (random.nextDouble() < armorProbability) {
+            double quality = Math.min(1.0, distanceToSpawn / 12000.0);
+            equipArmor(mob, quality, random);
         }
     }
 
     private static void equipArmor(Mob mob, double quality, RandomSource random) {
-        if(mob.getItemBySlot(EquipmentSlot.HEAD).isEmpty() && random.nextDouble() < 2 * quality) {
+        if (mob.getItemBySlot(EquipmentSlot.HEAD).isEmpty() && random.nextDouble() < 2 * quality) {
             mob.setItemSlot(EquipmentSlot.HEAD, getHelmetByQuality(quality, random));
         }
         quality = quality * quality;
-        if(mob.getItemBySlot(EquipmentSlot.FEET).isEmpty() && random.nextDouble() < 2 * quality) {
+        if (mob.getItemBySlot(EquipmentSlot.FEET).isEmpty() && random.nextDouble() < 2 * quality) {
             mob.setItemSlot(EquipmentSlot.FEET, getBootsByQuality(quality, random));
         }
         quality = quality * quality;
-        if(mob.getItemBySlot(EquipmentSlot.LEGS).isEmpty() && random.nextDouble() < 2 * quality) {
+        if (mob.getItemBySlot(EquipmentSlot.LEGS).isEmpty() && random.nextDouble() < 2 * quality) {
             mob.setItemSlot(EquipmentSlot.LEGS, getLeggingsByQuality(quality, random));
         }
         quality = quality * 0.8;
-        if(mob.getItemBySlot(EquipmentSlot.CHEST).isEmpty() && random.nextDouble() < 2 * quality) {
+        if (mob.getItemBySlot(EquipmentSlot.CHEST).isEmpty() && random.nextDouble() < 2 * quality) {
             mob.setItemSlot(EquipmentSlot.CHEST, getChestplateByQuality(quality, random));
         }
     }

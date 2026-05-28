@@ -29,7 +29,7 @@ public abstract class ServerPlayerMixinBetterKeep extends Player {
     public void onRestoreFrom(ServerPlayer player, boolean p_9017_, CallbackInfo ci) {
         int containerSize = player.getInventory().getContainerSize();
 
-        final TagKey<Item> toolTag = ItemTags.create(new ResourceLocation("forge", "tools"));
+        final TagKey<Item> toolTag = ItemTags.create(ResourceLocation.fromNamespaceAndPath("neoforge", "tools"));
         for (int i = 0; i < containerSize; ++i) {
             ItemStack itemstack = player.getInventory().getItem(i);
             if (itemstack.isEmpty()) continue;

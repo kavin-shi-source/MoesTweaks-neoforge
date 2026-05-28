@@ -1,64 +1,39 @@
 package com.moepus.moestweaks.mixins.mobThrowsMustDrop;
 
-
-import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
-import org.jetbrains.annotations.NotNull;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.Redirect;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(Mob.class)
-public abstract class MobMixin extends LivingEntity {
+public abstract class MobMixin {
+    @Shadow
+    public abstract ItemStack setItemSlotAndDropWhenKilled(EquipmentSlot slot, ItemStack stack);
 
-    protected MobMixin(EntityType<? extends LivingEntity> pEntityType, Level pLevel) {
-        super(pEntityType, pLevel);
+    @Unique
+    private boolean moestweaks$dropped = false;
+
+    @Inject(method = "equipItemIfPossible", at = @At("HEAD"))
+    private void moestweaks$resetDropFlag(ItemStack stack, CallbackInfoReturnable<ItemStack> cir) {
+        this.moestweaks$dropped = false;
     }
 
-    @Shadow
-    protected boolean canReplaceCurrentItem(ItemStack pCandidate, ItemStack pExisting){
-        return true;
-    };
-
-    @Shadow
-    protected void setItemSlotAndDropWhenKilled(EquipmentSlot pSlot, ItemStack pStack) {
-    }
-
-    /**
-     * @author MoePus
-     * @reason MustDrop if change equip
-     */
-    @Overwrite
-    public @NotNull ItemStack equipItemIfPossible(ItemStack pStack) {
-        Mob mob = (Mob)(Object)this;
-        EquipmentSlot equipmentslot = getEquipmentSlotForItem(pStack);
-        ItemStack itemstack = this.getItemBySlot(equipmentslot);
-        boolean flag = this.canReplaceCurrentItem(pStack, itemstack);
-        if (equipmentslot.isArmor() && !flag) {
-            equipmentslot = EquipmentSlot.MAINHAND;
-            itemstack = this.getItemBySlot(equipmentslot);
-            flag = itemstack.isEmpty();
-        }
-
-        if (flag && mob.canHoldItem(pStack)) {
-            if (!itemstack.isEmpty()) {
-                this.spawnAtLocation(itemstack);
+    @Redirect(method = "equipItemIfPossible", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/Mob;setItemSlotAndDropWhenKilled(Lnet/minecraft/world/entity/EquipmentSlot;Lnet/minecraft/world/item/ItemStack;)V"))
+    private void moestweaks$dropOldItemBeforeEquip(EquipmentSlot slot, ItemStack stack) {
+        if (!this.moestweaks$dropped) {
+            this.moestweaks$dropped = true;
+            Mob self = (Mob)(Object)this;
+            ItemStack oldItem = self.getItemBySlot(slot);
+            if (!oldItem.isEmpty()) {
+                self.spawnAtLocation(oldItem);
             }
-
-            if (equipmentslot.isArmor() && pStack.getCount() > 1) {
-                ItemStack itemstack1 = pStack.copyWithCount(1);
-                this.setItemSlotAndDropWhenKilled(equipmentslot, itemstack1);
-                return itemstack1;
-            } else {
-                this.setItemSlotAndDropWhenKilled(equipmentslot, pStack);
-                return pStack;
-            }
-        } else {
-            return ItemStack.EMPTY;
         }
+        this.setItemSlotAndDropWhenKilled(slot, stack);
     }
 }

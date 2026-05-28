@@ -6,7 +6,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 
 public class AllTags {
-    public static final TagKey<Item> DEATH_KEEP_TAG = ItemTags.create(new ResourceLocation(MoesTweaks.MODID, "death_keep"));
+    public static final TagKey<Item> DEATH_KEEP_TAG = ItemTags.create(ResourceLocation.fromNamespaceAndPath(MoesTweaks.MODID, "death_keep"));
 
     public static boolean hasDeathKeepTag(ItemStack itemStack) {
         return itemStack.is(DEATH_KEEP_TAG);

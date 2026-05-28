@@ -1,0 +1,18 @@
+allprojects {
+    repositories {
+        maven { url 'https://mirrors.qlu.edu.cn/bmclapi' }
+    }
+}
+
+gradle.projectsLoaded { gradle ->
+    gradle.rootProject.repositories { repo ->
+        all { ArtifactRepository artifactRepo ->
+            if (artifactRepo instanceof MavenArtifactRepository) {
+                def url = artifactRepo.url.toString()
+                if (url.contains('maven.neoforged.net')) {
+                    artifactRepo.url = 'https://mirrors.qlu.edu.cn/bmclapi'
+                }
+            }
+        }
+    }
+}

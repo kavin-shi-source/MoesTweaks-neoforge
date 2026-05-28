@@ -26,7 +26,7 @@ public abstract class MonsterMixin extends LivingEntity {
         damage = Math.max(damage, 1.0F);
 
         for (EquipmentSlot slot : EquipmentSlot.values()) {
-            if (slot.getType() == EquipmentSlot.Type.ARMOR) {
+            if (slot.getType() == EquipmentSlot.Type.HUMANOID_ARMOR) {
                 ItemStack armorItem = this.getItemBySlot(slot);
                 if(!(armorItem.getItem() instanceof ArmorItem))
                     continue;
@@ -40,12 +40,10 @@ public abstract class MonsterMixin extends LivingEntity {
                 if(damageSource.is(DamageTypeTags.IS_FALL))
                     continue;
 
-                if(damageSource.is(DamageTypeTags.IS_FIRE) && armorItem.getItem().isFireResistant())
+                if(damageSource.is(DamageTypeTags.IS_FIRE) && !armorItem.canBeHurtBy(damageSource))
                     continue;
 
-                armorItem.hurtAndBreak((int) damage, this, (entity) -> {
-                    entity.broadcastBreakEvent(slot);
-                });
+                armorItem.hurtAndBreak((int) damage, this, slot);
             }
         }
     }
