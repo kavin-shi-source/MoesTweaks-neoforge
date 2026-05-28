@@ -32,7 +32,7 @@ public class MixinPlugin implements IMixinConfigPlugin {
                     config.betterKeepInv;
             case "com.moepus.moestweaks.mixins.LocalPlayerMixinDoubleJmp", "com.moepus.moestweaks.mixins.ServerPlayerMixinDoubleJmp" ->
                     config.doubleJump;
-            case "com.moepus.moestweaks.mixins.noRecipeBook.ClientPacketListenerMixin", "com.moepus.moestweaks.mixins.noRecipeBook.ServerRecipeBookMixin", "com.moepus.moestweaks.mixins.noRecipeBook.AbstractRecipeBookMixin" ->
+            case "com.moepus.moestweaks.mixins.noRecipeBook.ClientPacketListenerMixin", "com.moepus.moestweaks.mixins.noRecipeBook.ServerRecipeBookMixin", "com.moepus.moestweaks.mixins.noRecipeBook.InventoryScreenMixin" ->
                     config.noRecipeBook;
             case "com.moepus.moestweaks.mixins.VillagerMakeLoveMixin" -> config.villagerLoveLessCooldown;
             case "com.moepus.moestweaks.mixins.monsterArmorHurt.MonsterMixin" -> config.monsterArmorHurt;

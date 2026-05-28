@@ -2,11 +2,12 @@
   "required": true,
   "minVersion": "0.8",
   "package": "com.moepus.moestweaks.mixins",
+  "refmap": "moestweaks.refmap.json",
   "compatibilityLevel": "JAVA_21",
   "plugin": "com.moepus.moestweaks.MixinPlugin",
   "client": [
     "LocalPlayerMixinDoubleJmp",
-    "noRecipeBook.InventoryScreenMixin",
+    "noRecipeBook.AbstractRecipeBookMixin",
     "noRecipeBook.ClientPacketListenerMixin"
   ],
   "mixins": [
